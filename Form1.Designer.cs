@@ -28,43 +28,77 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.DiceBox = new System.Windows.Forms.Panel();
+            this.buttonThrowDice = new System.Windows.Forms.Button();
+            this.panelDiceBox = new System.Windows.Forms.Panel();
+            this.panelScoring = new System.Windows.Forms.Panel();
+            this.panelNeededScore = new System.Windows.Forms.Panel();
+            this.buttonCountScore = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // button1
+            // buttonThrowDice
             // 
-            this.button1.Location = new System.Drawing.Point(734, 797);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(152, 64);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.buttonThrowDice.Location = new System.Drawing.Point(463, 827);
+            this.buttonThrowDice.Name = "buttonThrowDice";
+            this.buttonThrowDice.Size = new System.Drawing.Size(572, 132);
+            this.buttonThrowDice.TabIndex = 1;
+            this.buttonThrowDice.Text = "Throw all your dice";
+            this.buttonThrowDice.UseVisualStyleBackColor = true;
+            this.buttonThrowDice.Click += new System.EventHandler(this.button1_Click);
             // 
-            // DiceBox
+            // panelDiceBox
             // 
-            this.DiceBox.Location = new System.Drawing.Point(326, 106);
-            this.DiceBox.Name = "DiceBox";
-            this.DiceBox.Size = new System.Drawing.Size(1150, 467);
-            this.DiceBox.TabIndex = 2;
+            this.panelDiceBox.BackgroundImage = global::Dicey_Chances.Properties.Resources.Texture_Wood_Background;
+            this.panelDiceBox.Location = new System.Drawing.Point(464, 354);
+            this.panelDiceBox.Name = "panelDiceBox";
+            this.panelDiceBox.Size = new System.Drawing.Size(1150, 467);
+            this.panelDiceBox.TabIndex = 2;
+            // 
+            // panelScoring
+            // 
+            this.panelScoring.Location = new System.Drawing.Point(463, 3);
+            this.panelScoring.Name = "panelScoring";
+            this.panelScoring.Size = new System.Drawing.Size(1150, 345);
+            this.panelScoring.TabIndex = 3;
+            // 
+            // panelNeededScore
+            // 
+            this.panelNeededScore.Location = new System.Drawing.Point(12, 3);
+            this.panelNeededScore.Name = "panelNeededScore";
+            this.panelNeededScore.Size = new System.Drawing.Size(445, 206);
+            this.panelNeededScore.TabIndex = 4;
+            // 
+            // buttonCountScore
+            // 
+            this.buttonCountScore.Location = new System.Drawing.Point(1042, 827);
+            this.buttonCountScore.Name = "buttonCountScore";
+            this.buttonCountScore.Size = new System.Drawing.Size(572, 132);
+            this.buttonCountScore.TabIndex = 5;
+            this.buttonCountScore.Text = "Submit the throw";
+            this.buttonCountScore.UseVisualStyleBackColor = true;
             // 
             // GameWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1626, 971);
-            this.Controls.Add(this.DiceBox);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.buttonCountScore);
+            this.Controls.Add(this.panelNeededScore);
+            this.Controls.Add(this.panelScoring);
+            this.Controls.Add(this.panelDiceBox);
+            this.Controls.Add(this.buttonThrowDice);
             this.Name = "GameWindow";
             this.Text = "Dicey Chances";
+            this.Load += new System.EventHandler(this.GameWindow_Load);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Panel DiceBox;
+        private System.Windows.Forms.Button buttonThrowDice;
+        private System.Windows.Forms.Panel panelDiceBox;
+        private System.Windows.Forms.Panel panelScoring;
+        private System.Windows.Forms.Panel panelNeededScore;
+        private System.Windows.Forms.Button buttonCountScore;
     }
 }
 

@@ -13,7 +13,10 @@ namespace Dicey_Chances
 {
     public partial class GameWindow : Form
     {
-        private static Random _rnd = new Random();
+        private static readonly Random _rnd = new Random();
+
+        Die[] dice = new Die[1];
+        int GlobalID = 0;
 
         public GameWindow()
         {
@@ -22,28 +25,14 @@ namespace Dicey_Chances
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var die = new PictureBox();
+            
+        }
 
-            die.Width = 70;
-            die.Height = 70;
-            die.SizeMode = PictureBoxSizeMode.CenterImage;
-            die.BackColor = Color.Red;
-
-            // load image from application folder (ensure Dice_One.png is copied to output)
-            var imagePath = Path.Combine(Application.StartupPath, "Dice_One.png");
-            if (File.Exists(imagePath))
-            {
-                die.Image = Image.FromFile(imagePath);
-            }
-
-            // position relative to DiceBox so the PictureBox appears somewhere inside it
-            var maxX = Math.Max(1, DiceBox.Width - die.Width);
-            var maxY = Math.Max(1, DiceBox.Height - die.Height);
-            die.Location = new Point(_rnd.Next(0, maxX), _rnd.Next(0, maxY));
-
-            // add to DiceBox so it's visually contained there
-            DiceBox.Controls.Add(die);
-            die.BringToFront();
+        private void GameWindow_Load(object sender, EventArgs e)
+        {
+            int[] basesides = { 1, 2, 3, 4, 5, 6, };
+            dice[0] = new Die(GlobalID, basesides);
+            GlobalID ++;
         }
     }
 }
