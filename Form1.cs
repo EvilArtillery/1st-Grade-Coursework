@@ -16,8 +16,9 @@ namespace Dicey_Chances
         private static readonly Random _rnd = new Random();
         List<Die> dice = new List<Die>();
         List<(int value, Rectangle rect)> currentDice = new List<(int, Rectangle)>();
-        private int throwScore = -1, totalScore = -1, neededScore = -1;
+        private int throwScore = -1, totalScore = -1;
         private int diceSize = 64;
+        public Dictionary<int, int> diceAmount = new Dictionary<int, int>();
         
 
         public GameWindow()
@@ -31,8 +32,23 @@ namespace Dicey_Chances
             int[] basesides = { 1, 2, 3, 4, 5, 6 };
             dice.Add(new Die());
             dice.Add(new Die());
-            neededScore = 10;
-            labelTotalScore.Text = "0/" + neededScore.ToString();
+            diceAmount[4] = 0;
+            diceAmount[6] = 2;
+            diceAmount[8] = 0;
+            diceAmount[10] = 0;
+            diceAmount[12] = 0;
+            diceAmount[20] = 0;
+            labelTotalScore.Text = "0";
+            DiceListReload();
+        }
+
+        public void DiceListReload()
+        {
+            listBoxDice.Items.Clear();
+            int amount = -1;
+            foreach (int i in new List<int>{ 4, 6 ,8, 10, 12, 20})
+                if (diceAmount.TryGetValue(i, out amount) && amount != 0)
+                    listBoxDice.Items.Add($"{i}-sided dice: " + amount.ToString());
         }
 
         private void buttonThrowDice_Click(object sender, EventArgs e)
@@ -65,8 +81,7 @@ namespace Dicey_Chances
         {
             if (totalScore == -1) totalScore = 0;
             totalScore += throwScore;
-            labelTotalScore.Text = totalScore.ToString() + "/" + neededScore.ToString();
-            //if (totalScore > neededScore) win_round();
+            labelTotalScore.Text = totalScore.ToString();
             currentDice.Clear();
             panelDiceBox.Invalidate();
         }
@@ -88,6 +103,19 @@ namespace Dicey_Chances
             }
             return false;
         }
+
+        private void buttonScoreReset_Click(object sender, EventArgs e)
+        {
+            totalScore = 0;
+            labelTotalScore.Text = totalScore.ToString();
+        }
+
+        private void buttonDiceGenerator_Click(object sender, EventArgs e)
+        {
+            DiceGenerator generator = new DiceGenerator(this);
+            generator.ShowDialog();
+        }
+
         private Rectangle FindNonOverlappingPosition(Random random, List<Rectangle> existingDice)
         {
             // margin so dice aren't touching the walls
@@ -112,6 +140,22 @@ namespace Dicey_Chances
             } while (IsOverlapping(candidate, existingDice));
 
             return candidate;
+        }
+
+        public void AddDie(int[] sides)
+        {
+            Die die = new Die(sides);
+            dice.Add(die);
+        }
+
+        public void RemoveDie(int[] sides)
+        {
+            foreach (Die die in dice)
+                if (die.Sides.SequenceEqual(sides))
+                {
+                    dice.Remove(die);
+                    return;
+                }
         }
     }
 }
