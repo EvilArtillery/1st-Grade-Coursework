@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,15 +36,15 @@ namespace Dicey_Chances
             List<PictureBox> pictureBoxes = new List<PictureBox>
                 { pictureBox4, pictureBox6, pictureBox8, pictureBox10, pictureBox12, pictureBox20 };
             List<Label> labels = new List<Label> { label4, label6, label8, label10, label12, label20 };
-            int[] ints = {4, 6, 8, 10, 12, 20};
+            int[] ints = { 4, 6, 8, 10, 12, 20 };
             int amount;
             for (int i = 0; i < 6; i++)
             {
                 pictureBoxes[i].Image = Image.FromFile($"Dice{ints[i]}Sides.jpg");
                 if (!MotherForm.diceAmount.TryGetValue(ints[i], out amount)) amount = 0;
                 labels[i].Text = amount.ToString();
-                labels[i].Location = new Point(pictureBoxes[i].Location.X + pictureBoxes[i].Width/2 - labels[i].Width/2,
-                    pictureBoxes[i].Location.Y + pictureBoxes[i].Height/2 - labels[i].Height/2);
+                labels[i].Location = new Point(pictureBoxes[i].Location.X + pictureBoxes[i].Width / 2 - labels[i].Width / 2,
+                    pictureBoxes[i].Location.Y + pictureBoxes[i].Height / 2 - labels[i].Height / 2);
             }
         }
 

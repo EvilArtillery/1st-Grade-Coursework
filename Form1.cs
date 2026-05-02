@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.IO;
 
 namespace Dicey_Chances
 {
@@ -15,10 +16,11 @@ namespace Dicey_Chances
     {
         private static readonly Random _rnd = new Random();
         List<Die> dice = new List<Die>();
-        List<(int value, Rectangle rect)> currentDice = new List<(int, Rectangle)>();
+        List<DiceVisual> currentDice = new List<DiceVisual>();  // Replaces (int, Rectangle)
         private int throwScore = -1, totalScore = -1;
         private int diceSize = 64;
         public Dictionary<int, int> diceAmount = new Dictionary<int, int>();
+        private const int HITBOX_PADDING = 5;
         
 
         public GameWindow()
@@ -60,20 +62,27 @@ namespace Dicey_Chances
             {
                 int throwResult = d.Sides[_rnd.Next(d.Sides.Length)];
                 result += throwResult;
-                Rectangle rect = FindNonOverlappingPosition(_rnd, currentDice.Select(c => c.rect).ToList());
-                currentDice.Add((throwResult, rect));
+
+                var visual = FindNonOverlappingPosition(d.Sides.Length, throwResult);
+                currentDice.Add(visual);
             }
+
             panelDiceBox.Invalidate();
-            if (throwScore == -1) throwScore = 0;
             throwScore = result;
             labelThrowScore.Text = "Score: " + throwScore.ToString();
         }
 
         private void panelDiceBox_Paint(object sender, PaintEventArgs e)
         {
-            foreach (var (value, rect) in currentDice)
+            foreach (var dice in currentDice)
             {
-                e.Graphics.DrawImage(Image.FromFile($"Dice_{value}.png"), rect);
+                // Try to load shape-specific image, fallback to generic
+                string imagePath = "";
+                if (dice.SidesCount == 6) imagePath = $"Dice_{dice.Value.ToString()}.png";
+
+                Image img = File.Exists(imagePath) ? Image.FromFile(imagePath) : null;
+                DiceRenderer.DrawDice(e.Graphics, dice, img);
+                img?.Dispose();
             }
         }
 
@@ -81,25 +90,25 @@ namespace Dicey_Chances
         {
             if (totalScore == -1) totalScore = 0;
             totalScore += throwScore;
+            throwScore = 0;
             labelTotalScore.Text = totalScore.ToString();
             currentDice.Clear();
             panelDiceBox.Invalidate();
         }
 
-        private bool IsOverlapping(Rectangle candidate, List<Rectangle> existingDice)
+        private bool IsOverlapping(DiceVisual candidate)
         {
-            // padding gap so dice aren't touching
-            const int padding = 5;
-            Rectangle padded = new Rectangle(
-                candidate.X - padding,
-                candidate.Y - padding,
-                candidate.Width + (padding * 2),
-                candidate.Height + (padding * 2));
+            var candidatePoly = candidate.GetScreenPolygon();
 
-            foreach (var rect in existingDice)
+            foreach (var existing in currentDice)
             {
-                if (padded.IntersectsWith(rect))
+                var existingPoly = existing.GetScreenPolygon();
+
+                if (PolygonCollision.PolygonsIntersectWithPadding(
+                    candidatePoly, existingPoly, HITBOX_PADDING))
+                {
                     return true;
+                }
             }
             return false;
         }
@@ -116,31 +125,40 @@ namespace Dicey_Chances
             generator.ShowDialog();
         }
 
-        private Rectangle FindNonOverlappingPosition(Random random, List<Rectangle> existingDice)
+        private DiceVisual FindNonOverlappingPosition(int sidesCount, int value)
         {
-            // margin so dice aren't touching the walls
             int margin = 10;
             int attempts = 0;
-            Rectangle candidate;
+            DiceVisual candidate;
 
-            int maxX = Math.Max(margin, panelDiceBox.Width - diceSize - margin);
-            int maxY = Math.Max(margin, panelDiceBox.Height - diceSize - margin);
-
-            if (maxX <= 0 || maxY <= 0) throw new InvalidOperationException("Panel is too small to fit dice.");
+            var shape = DiceShapes.ShapeForSides(sidesCount);
+            float maxX = Math.Max(margin, panelDiceBox.Width - margin);
+            float maxY = Math.Max(margin, panelDiceBox.Height - margin);
 
             do
             {
-                int x = random.Next(0, maxX + 1);
-                int y = random.Next(0, maxY + 1);
-                candidate = new Rectangle(x, y, diceSize, diceSize);
+                candidate = new DiceVisual
+                {
+                    Value = value,
+                    SidesCount = sidesCount,
+                    Shape = shape,
+                    Size = diceSize / 2f,  // Size is radius
+                    Position = new PointF(
+                        (float)(_rnd.NextDouble() * (maxX - margin * 2 - diceSize) + margin + diceSize / 2),
+                        (float)(_rnd.NextDouble() * (maxY - margin * 2 - diceSize) + margin + diceSize / 2)
+                    ),
+                    Rotation = DiceRenderer.RandomRotation(_rnd, shape)
+                };
 
                 attempts++;
-                if (attempts >= 500) throw new InvalidOperationException("Could not place dice without overlap.");
+                if (attempts >= 500)
+                    throw new InvalidOperationException("Could not place dice without overlap.");
 
-            } while (IsOverlapping(candidate, existingDice));
+            } while (IsOverlapping(candidate));
 
             return candidate;
         }
+
 
         public void AddDie(int[] sides)
         {
